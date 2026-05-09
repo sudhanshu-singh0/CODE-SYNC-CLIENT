@@ -13,7 +13,7 @@ import cn from "classnames"
 import { Tooltip } from 'react-tooltip'
 import { useState } from 'react'
 import { tooltipStyles } from "./tooltipStyles"
-import { FaVideo } from "react-icons/fa"
+
 function Sidebar() {
     const {
         activeView,
