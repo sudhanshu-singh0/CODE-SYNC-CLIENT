@@ -1,7 +1,7 @@
 import Peer, { MediaConnection } from "peerjs"
 import {
     ReactNode, createContext, useContext,
-    useRef, useState
+    useEffect, useRef, useState
 } from "react"
 import { useSocket } from "./SocketContext"
 
@@ -51,6 +51,14 @@ export const VoiceContextProvider = ({ children }: { children: ReactNode }) => {
         })
     }
 
+    // Assign the local stream to the video element once it mounts
+    useEffect(() => {
+        if (isInCall && localVideoRef.current && streamRef.current) {
+            localVideoRef.current.srcObject = streamRef.current
+            localVideoRef.current.play().catch(() => {})
+        }
+    }, [isInCall])
+
     const joinCall = async () => {
         // Get audio + video stream
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -58,11 +66,6 @@ export const VoiceContextProvider = ({ children }: { children: ReactNode }) => {
             video: true
         })
         streamRef.current = stream
-
-        // Show local video
-        if (localVideoRef.current) {
-            localVideoRef.current.srcObject = stream
-        }
 
         const peer = new Peer()
         peerRef.current = peer
