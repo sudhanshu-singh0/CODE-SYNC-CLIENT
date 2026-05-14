@@ -63,11 +63,14 @@ export const VoiceContextProvider = ({ children }: { children: ReactNode }) => {
 
     const joinCall = async (video = false) => {
         setWithVideo(video)
-        // Request camera only if joining with video
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: video
-        })
+        // Only request camera when joining with video — omitting the video key
+        // entirely prevents any camera access (passing video:false can still
+        // trigger the camera indicator in some browsers)
+        const stream = await navigator.mediaDevices.getUserMedia(
+            video
+                ? { audio: true, video: true }
+                : { audio: true }
+        )
         streamRef.current = stream
         setIsVideoOn(video)
 
