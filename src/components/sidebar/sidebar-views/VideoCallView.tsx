@@ -125,16 +125,19 @@ const VideoCallView = () => {
                                 : <FaMicrophoneSlash size={18} />}
                         </button>
 
-                        <button
-                            onClick={toggleVideo}
-                            className={`p-2 rounded-full text-white
-                                ${isVideoOn ? "bg-gray-600" : "bg-red-600"}`}
-                            title={isVideoOn ? "Hide Video" : "Show Video"}
-                        >
-                            {isVideoOn
-                                ? <FaVideo size={18} />
-                                : <FaVideoSlash size={18} />}
-                        </button>
+                        {/* Video toggle — only available when joined with camera */}
+                        {withVideo && (
+                            <button
+                                onClick={toggleVideo}
+                                className={`p-2 rounded-full text-white
+                                    ${isVideoOn ? "bg-gray-600" : "bg-red-600"}`}
+                                title={isVideoOn ? "Hide Video" : "Show Video"}
+                            >
+                                {isVideoOn
+                                    ? <FaVideo size={18} />
+                                    : <FaVideoSlash size={18} />}
+                            </button>
+                        )}
 
                         <button
                             onClick={leaveCall}
