@@ -38,7 +38,8 @@ const VideoCallView = () => {
         isMicOn, isVideoOn,
         toggleMic, toggleVideo,
         isInCall, joinCall, leaveCall,
-        localVideoRef, remoteVideos
+        localVideoRef, remoteVideos,
+        withVideo
     } = useVoice()
 
     return (
@@ -48,19 +49,29 @@ const VideoCallView = () => {
             {/* Video Grid */}
             <div className="flex flex-col gap-2 overflow-y-auto flex-1">
 
-                {/* Local Video */}
-                {isInCall && (
+                {/* Local Video — only shown when joined with camera */}
+                {isInCall && withVideo && (
                     <div className="relative">
                         <video
                             ref={localVideoRef}
                             autoPlay
                             muted
+                            playsInline
                             className="w-full rounded-lg bg-black"
                         />
-                        <span className="absolute bottom-1 left-2 
+                        <span className="absolute bottom-1 left-2
                             text-white text-xs bg-black/50 px-1 rounded">
                             You
                         </span>
+                    </div>
+                )}
+
+                {/* Voice-only indicator */}
+                {isInCall && !withVideo && (
+                    <div className="flex items-center justify-center
+                        h-24 bg-darkHover rounded-lg text-gray-400 gap-2">
+                        <FaMicrophone />
+                        <span>Voice only — camera is off</span>
                     </div>
                 )}
 
@@ -71,9 +82,10 @@ const VideoCallView = () => {
 
                 {/* Placeholder when not in call */}
                 {!isInCall && (
-                    <div className="flex items-center justify-center 
-                        h-40 bg-darkHover rounded-lg text-gray-400">
-                        Click Join Call to start video
+                    <div className="flex flex-col items-center justify-center
+                        h-40 bg-darkHover rounded-lg text-gray-400 gap-2 text-sm">
+                        <p>Join Voice — audio only</p>
+                        <p>Join Video — audio + camera</p>
                     </div>
                 )}
             </div>
@@ -82,13 +94,24 @@ const VideoCallView = () => {
             <div className="flex gap-2 justify-center pt-2 
                 border-t border-darkHover">
                 {!isInCall ? (
-                    <button
-                        onClick={joinCall}
-                        className="flex items-center gap-2 bg-green-600 
-                            hover:bg-green-700 text-white px-4 py-2 rounded"
-                    >
-                        <FaPhone /> Join Call
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => joinCall(false)}
+                            className="flex items-center gap-2 bg-blue-600
+                                hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
+                            title="Join with audio only — camera stays off"
+                        >
+                            <FaMicrophone /> Voice
+                        </button>
+                        <button
+                            onClick={() => joinCall(true)}
+                            className="flex items-center gap-2 bg-green-600
+                                hover:bg-green-700 text-white px-3 py-2 rounded text-sm"
+                            title="Join with audio and camera"
+                        >
+                            <FaVideo /> Video
+                        </button>
+                    </div>
                 ) : (
                     <>
                         <button
