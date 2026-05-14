@@ -1,9 +1,37 @@
 import { useVoice } from "@/context/VoiceContext"
+import { useEffect, useRef } from "react"
 import {
     FaMicrophone, FaMicrophoneSlash,
     FaVideo, FaVideoSlash,
     FaPhone, FaPhoneSlash
 } from "react-icons/fa"
+
+// Dedicated component so useEffect runs reliably when a remote stream arrives
+const RemoteVideo = ({ peerId, stream }: { peerId: string; stream: MediaStream }) => {
+    const videoRef = useRef<HTMLVideoElement>(null)
+
+    useEffect(() => {
+        if (videoRef.current) {
+            videoRef.current.srcObject = stream
+            videoRef.current.play().catch(() => {})
+        }
+    }, [stream])
+
+    return (
+        <div className="relative">
+            <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="w-full rounded-lg bg-black"
+            />
+            <span className="absolute bottom-1 left-2
+                text-white text-xs bg-black/50 px-1 rounded">
+                User {peerId.slice(0, 4)}
+            </span>
+        </div>
+    )
+}
 
 const VideoCallView = () => {
     const {
@@ -38,19 +66,7 @@ const VideoCallView = () => {
 
                 {/* Remote Videos */}
                 {Object.entries(remoteVideos).map(([peerId, stream]) => (
-                    <div key={peerId} className="relative">
-                        <video
-                            autoPlay
-                            className="w-full rounded-lg bg-black"
-                            ref={el => {
-                                if (el) el.srcObject = stream
-                            }}
-                        />
-                        <span className="absolute bottom-1 left-2 
-                            text-white text-xs bg-black/50 px-1 rounded">
-                            User
-                        </span>
-                    </div>
+                    <RemoteVideo key={peerId} peerId={peerId} stream={stream} />
                 ))}
 
                 {/* Placeholder when not in call */}
