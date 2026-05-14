@@ -10,8 +10,9 @@ interface VoiceContextType {
     isVideoOn: boolean
     toggleMic: () => void
     toggleVideo: () => void
+    withVideo: boolean
     isInCall: boolean
-    joinCall: () => void
+    joinCall: (withVideo?: boolean) => void
     leaveCall: () => void
     localVideoRef: React.RefObject<HTMLVideoElement>
     remoteVideos: { [peerId: string]: MediaStream }
@@ -33,8 +34,9 @@ export const VoiceContextProvider = ({ children }: { children: ReactNode }) => {
     const localVideoRef = useRef<HTMLVideoElement>(null)
 
     const [isMicOn, setIsMicOn] = useState(true)
-    const [isVideoOn, setIsVideoOn] = useState(true)
+    const [isVideoOn, setIsVideoOn] = useState(false)
     const [isInCall, setIsInCall] = useState(false)
+    const [withVideo, setWithVideo] = useState(false)
     const [remoteVideos, setRemoteVideos] = useState<{
         [peerId: string]: MediaStream
     }>({})
@@ -59,13 +61,15 @@ export const VoiceContextProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [isInCall])
 
-    const joinCall = async () => {
-        // Get audio + video stream
+    const joinCall = async (video = false) => {
+        setWithVideo(video)
+        // Request camera only if joining with video
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: true,
-            video: true
+            video: video
         })
         streamRef.current = stream
+        setIsVideoOn(video)
 
         const peer = new Peer()
         peerRef.current = peer
@@ -143,7 +147,8 @@ export const VoiceContextProvider = ({ children }: { children: ReactNode }) => {
             isMicOn, isVideoOn,
             toggleMic, toggleVideo,
             isInCall, joinCall, leaveCall,
-            localVideoRef, remoteVideos
+            localVideoRef, remoteVideos,
+            withVideo
         }}>
             {children}
         </VoiceContext.Provider>
